@@ -1,13 +1,13 @@
 {
     "openapi": "3.0.3",
     "info": {
-        "title": "Contacts CRUD API",
-        "description": "API for managing contacts — full CRUD operations",
+        "title": "Contacts & Services CRUD API",
+        "description": "API for managing contacts and services — full CRUD operations",
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://localhost:3000/api"
+            "url": "https://crud-api-project-y9c8.onrender.com/api"
         }
     ],
     "paths": {
@@ -137,6 +137,126 @@
                     }
                 }
             }
+        },
+        "/services": {
+            "get": {
+                "summary": "Get all services",
+                "responses": {
+                    "200": {
+                        "description": "List of services",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Service"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new service",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Service"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Service created"
+                    }
+                }
+            }
+        },
+        "/services/{id}": {
+            "get": {
+                "summary": "Get a service by ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Service"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Service not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a service by ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Service"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Service updated"
+                    },
+                    "404": {
+                        "description": "Service not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a service by ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service deleted successfully"
+                    },
+                    "404": {
+                        "description": "Service not found"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -166,6 +286,48 @@
                     "lastName",
                     "email",
                     "phone"
+                ]
+            },
+            "Service": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Graphic Design"
+                    },
+                    "provider": {
+                        "type": "string",
+                        "example": "Creative Media"
+                    },
+                    "price": {
+                        "type": "number",
+                        "example": 80
+                    },
+                    "duration": {
+                        "type": "string",
+                        "example": "1 week"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "Design"
+                    },
+                    "location": {
+                        "type": "string",
+                        "example": "Harare"
+                    },
+                    "contactEmail": {
+                        "type": "string",
+                        "example": "info@creativemedia.co.zw"
+                    }
+                },
+                "required": [
+                    "name",
+                    "provider",
+                    "price",
+                    "duration",
+                    "category",
+                    "location",
+                    "contactEmail"
                 ]
             }
         }
