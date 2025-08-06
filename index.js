@@ -9,7 +9,7 @@ import passport from 'passport';
 import contactsRouter from './routes/contacts.js';
 import servicesRouter from './routes/services.js';
 import swaggerUi from 'swagger-ui-express';
-import './middleware/auth.js'; // ✅ Correct path to Passport config
+import './middleware/auth.js'; // ✅ Passport config
 
 dotenv.config();
 
@@ -20,13 +20,13 @@ const swaggerDocument = JSON.parse(
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// 🌐 Middleware
 app.use(cors());
 app.use(express.json());
 
-// 🔐 Express session (needed for Passport)
+// 🔐 Express session middleware (with .env secret)
 app.use(session({
-    secret: 'yourSecretKey', // Use a strong secret in production
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
 }));
@@ -48,8 +48,12 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', {
         failureRedirect: '/auth/failure',
-        successRedirect: '/auth/protected',
-    })
+        session: true,
+    }),
+    (req, res) => {
+        console.log('✅ Google authentication successful');
+        res.redirect('/auth/protected');
+    }
 );
 
 app.get('/auth/failure', (req, res) => {
@@ -60,8 +64,11 @@ app.get('/auth/protected', isLoggedIn, (req, res) => {
     res.send(`Hello ${req.user.displayName}, you're authenticated ✅`);
 });
 
-app.get('/auth/logout', (req, res) => {
-    req.logout(() => {
+app.get('/auth/logout', (req, res, next) => {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
         res.redirect('/');
     });
 });
