@@ -9,7 +9,7 @@ import passport from 'passport';
 import contactsRouter from './routes/contacts.js';
 import servicesRouter from './routes/services.js';
 import swaggerUi from 'swagger-ui-express';
-import './auth.js'; // ✅ Import Passport config
+import './middleware/auth.js'; // ✅ Correct path to Passport config
 
 dotenv.config();
 
