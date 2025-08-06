@@ -1,9 +1,17 @@
 import express from 'express';
 import Service from '../models/service.js';
+
 const router = express.Router();
 
+// Middleware to protect routes
+function isLoggedIn(req, res, next) {
+    if (req.user) {
+        return next();
+    }
+    res.status(401).json({ message: 'Unauthorized: Please login to access this resource.' });
+}
 
-// GET all services
+// GET all services (public)
 router.get('/', async (req, res) => {
     try {
         const services = await Service.find();
@@ -13,7 +21,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET service by ID
+// GET service by ID (public)
 router.get('/:id', async (req, res) => {
     try {
         const service = await Service.findById(req.params.id);
@@ -24,8 +32,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST create new service
-router.post('/', async (req, res) => {
+// POST create new service (protected)
+router.post('/', isLoggedIn, async (req, res) => {
     try {
         const service = new Service(req.body);
         await service.save();
@@ -35,20 +43,22 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT update service
-router.put('/:id', async (req, res) => {
+// PUT update service (protected)
+router.put('/:id', isLoggedIn, async (req, res) => {
     try {
         const updated = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ message: 'Service not found' });
         res.status(200).json(updated);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 });
 
-// DELETE service
-router.delete('/:id', async (req, res) => {
+// DELETE service (protected)
+router.delete('/:id', isLoggedIn, async (req, res) => {
     try {
-        await Service.findByIdAndDelete(req.params.id);
+        const deleted = await Service.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'Service not found' });
         res.status(200).json({ message: 'Service deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });

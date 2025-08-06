@@ -3,7 +3,15 @@ import Contact from '../models/contact.js';
 
 const router = express.Router();
 
-// GET all contacts
+// Middleware to protect routes
+function isLoggedIn(req, res, next) {
+    if (req.user) {
+        return next();
+    }
+    res.status(401).json({ message: 'Unauthorized: Please login to access this resource.' });
+}
+
+// GET all contacts (public)
 router.get('/', async (req, res) => {
     try {
         const contacts = await Contact.find();
@@ -13,7 +21,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET contact by ID
+// GET contact by ID (public)
 router.get('/:id', async (req, res) => {
     try {
         const contact = await Contact.findById(req.params.id);
@@ -24,8 +32,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST new contact
-router.post('/', async (req, res) => {
+// POST new contact (protected)
+router.post('/', isLoggedIn, async (req, res) => {
     const { firstName, lastName, email, phone } = req.body;
     const newContact = new Contact({ firstName, lastName, email, phone });
 
@@ -37,8 +45,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT update contact by ID
-router.put('/:id', async (req, res) => {
+// PUT update contact by ID (protected)
+router.put('/:id', isLoggedIn, async (req, res) => {
     try {
         const updatedContact = await Contact.findByIdAndUpdate(
             req.params.id,
@@ -52,8 +60,8 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE contact by ID
-router.delete('/:id', async (req, res) => {
+// DELETE contact by ID (protected)
+router.delete('/:id', isLoggedIn, async (req, res) => {
     try {
         const deletedContact = await Contact.findByIdAndDelete(req.params.id);
         if (!deletedContact) return res.status(404).json({ message: 'Contact not found' });

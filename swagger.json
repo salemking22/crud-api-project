@@ -1,37 +1,102 @@
 {
-    "openapi": "3.0.3",
+    "openapi": "3.0.0",
     "info": {
-        "title": "Contacts & Services CRUD API",
-        "description": "API for managing contacts and services — full CRUD operations",
+        "title": "Contacts & Services API",
+        "description": "API with Google OAuth-secured endpoints for managing contacts and services.",
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "https://crud-api-project-y9c8.onrender.com/api"
+            "url": "https://crud-api-project-y9c8.onrender.com"
         }
     ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Contact": {
+                "type": "object",
+                "properties": {
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "phone"
+                ]
+            },
+            "Service": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "duration": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    },
+                    "provider": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "description",
+                    "price",
+                    "category",
+                    "duration",
+                    "available",
+                    "provider"
+                ]
+            }
+        }
+    },
     "paths": {
         "/contacts": {
             "get": {
                 "summary": "Get all contacts",
                 "responses": {
                     "200": {
-                        "description": "List of contacts",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Contact"
-                                    }
-                                }
-                            }
-                        }
+                        "description": "List of contacts"
                     }
                 }
             },
             "post": {
                 "summary": "Create a new contact",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -44,21 +109,20 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Contact created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Contact"
-                                }
-                            }
-                        }
+                        "description": "Contact created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
                     }
                 }
             }
         },
         "/contacts/{id}": {
             "get": {
-                "summary": "Get a contact by ID",
+                "summary": "Get contact by ID",
                 "parameters": [
                     {
                         "name": "id",
@@ -71,14 +135,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Contact found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Contact"
-                                }
-                            }
-                        }
+                        "description": "Contact found"
                     },
                     "404": {
                         "description": "Contact not found"
@@ -86,7 +143,12 @@
                 }
             },
             "put": {
-                "summary": "Update a contact",
+                "summary": "Update contact by ID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -111,13 +173,24 @@
                     "200": {
                         "description": "Contact updated"
                     },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
+                    },
                     "404": {
                         "description": "Contact not found"
                     }
                 }
             },
             "delete": {
-                "summary": "Delete a contact",
+                "summary": "Delete contact by ID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -132,6 +205,9 @@
                     "200": {
                         "description": "Contact deleted"
                     },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
+                    },
                     "404": {
                         "description": "Contact not found"
                     }
@@ -143,22 +219,17 @@
                 "summary": "Get all services",
                 "responses": {
                     "200": {
-                        "description": "List of services",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Service"
-                                    }
-                                }
-                            }
-                        }
+                        "description": "List of services"
                     }
                 }
             },
             "post": {
                 "summary": "Create a new service",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -172,13 +243,19 @@
                 "responses": {
                     "201": {
                         "description": "Service created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
                     }
                 }
             }
         },
         "/services/{id}": {
             "get": {
-                "summary": "Get a service by ID",
+                "summary": "Get service by ID",
                 "parameters": [
                     {
                         "name": "id",
@@ -191,14 +268,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Service found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Service"
-                                }
-                            }
-                        }
+                        "description": "Service found"
                     },
                     "404": {
                         "description": "Service not found"
@@ -206,7 +276,12 @@
                 }
             },
             "put": {
-                "summary": "Update a service by ID",
+                "summary": "Update service by ID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -231,13 +306,24 @@
                     "200": {
                         "description": "Service updated"
                     },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
+                    },
                     "404": {
                         "description": "Service not found"
                     }
                 }
             },
             "delete": {
-                "summary": "Delete a service by ID",
+                "summary": "Delete service by ID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -250,85 +336,15 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Service deleted successfully"
+                        "description": "Service deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized: Please login to access this resource."
                     },
                     "404": {
                         "description": "Service not found"
                     }
                 }
-            }
-        }
-    },
-    "components": {
-        "schemas": {
-            "Contact": {
-                "type": "object",
-                "properties": {
-                    "firstName": {
-                        "type": "string",
-                        "example": "Jane"
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "example": "Doe"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "jane.doe@example.com"
-                    },
-                    "phone": {
-                        "type": "string",
-                        "example": "+1234567890"
-                    }
-                },
-                "required": [
-                    "firstName",
-                    "lastName",
-                    "email",
-                    "phone"
-                ]
-            },
-            "Service": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "example": "Graphic Design"
-                    },
-                    "provider": {
-                        "type": "string",
-                        "example": "Creative Media"
-                    },
-                    "price": {
-                        "type": "number",
-                        "example": 80
-                    },
-                    "duration": {
-                        "type": "string",
-                        "example": "1 week"
-                    },
-                    "category": {
-                        "type": "string",
-                        "example": "Design"
-                    },
-                    "location": {
-                        "type": "string",
-                        "example": "Harare"
-                    },
-                    "contactEmail": {
-                        "type": "string",
-                        "example": "info@creativemedia.co.zw"
-                    }
-                },
-                "required": [
-                    "name",
-                    "provider",
-                    "price",
-                    "duration",
-                    "category",
-                    "location",
-                    "contactEmail"
-                ]
             }
         }
     }
