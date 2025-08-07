@@ -1,38 +1,32 @@
-// routes/authRoutes.js
-import express from 'express';
-import passport from '../middleware/auth.js';
+// middleware/auth.js
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import dotenv from 'dotenv';
 
-const router = express.Router();
+dotenv.config();
 
-// Start OAuth login
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-// OAuth callback
-router.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/auth/failure', session: true }),
-  (req, res) => {
-    // Successful login
-    res.redirect('/auth/success'); // or send a response
-  }
+// Google OAuth Strategy
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: '/auth/google/callback',
+    },
+    (accessToken, refreshToken, profile, done) => {
+      return done(null, profile);
+    }
+  )
 );
 
-// Success route
-router.get('/auth/success', (req, res) => {
-  res.send(`✅ Login successful! Welcome, ${req.user.displayName}`);
+// Save user info into the session
+passport.serializeUser((user, done) => {
+  done(null, user);
 });
 
-// Failure route
-router.get('/auth/failure', (req, res) => {
-  res.send('❌ Login failed.');
+// Get user info from session
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
 });
 
-// Logout route
-router.get('/auth/logout', (req, res) => {
-  req.logout(err => {
-    if (err) return next(err);
-    res.redirect('/');
-  });
-});
-
-export default router;
+export default passport;
