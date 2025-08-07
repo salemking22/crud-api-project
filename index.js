@@ -4,18 +4,20 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from './middleware/auth.js';
+
 import contactRoutes from './routes/contacts.js';
 import serviceRoutes from './routes/services.js';
-import authRoutes from './routes/authRoutes.js'; // Import auth routes
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware
 app.use(express.json());
 
-// Configure session middleware
+// Session config for OAuth
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
@@ -24,17 +26,16 @@ app.use(
     })
 );
 
-// Initialize passport and session
+// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
 // API routes
 app.use('/api/contacts', contactRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/', authRoutes); // Handles /auth/...
 
-// Mount auth routes under /auth
-app.use('/auth', authRoutes);
-
+// Root route
 app.get('/', (req, res) => {
     res.send('Welcome to the API');
 });
@@ -48,6 +49,6 @@ mongoose
             console.log(`🚀 Server running on port ${port}`);
         });
     })
-    .catch((err) => {
+    .catch(err => {
         console.error('❌ Failed to connect to MongoDB:', err.message);
     });
