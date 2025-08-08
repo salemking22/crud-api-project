@@ -1,15 +1,12 @@
-// routes/authRoutes.js
 import express from 'express';
-import passport from '../middleware/auth.js';
+import passport from '../passport.js';
 
 const router = express.Router();
 
-// Moved to /google instead of /auth/google (since we will mount it on /auth)
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.get(
-    '/google/callback',
-    passport.authenticate('google', { failureRedirect: '/auth/failure', session: true }),
+router.get('/google/callback',
+    passport.authenticate('google', { failureRedirect: '/auth/failure' }),
     (req, res) => {
         res.redirect('/auth/success');
     }
